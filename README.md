@@ -1,5 +1,7 @@
 # telegram_diary
 
+[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-orange?logo=anthropic)](https://claude.ai/claude-code)
+
 Telegram に投げたメモを更新ごとに取り込み、Markdown 日記として保存するツール。
 
 ## 概要
@@ -40,6 +42,10 @@ uv sync
 uv run ruff check .
 uv run pytest
 ```
+
+## 開発環境
+
+このプロジェクトは [Claude Code](https://claude.ai/claude-code) を使って開発しています。設計・実装・テスト・CI/CD 構成のすべてに Claude を活用しています。詳細は [CLAUDE.md](CLAUDE.md) を参照してください。
 
 ## ディレクトリ構成
 
