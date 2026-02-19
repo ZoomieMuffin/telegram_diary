@@ -28,3 +28,43 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 - タスク管理: [Linear](https://linear.app) (PRV-13〜)
 - 仕様: [spec.md](doc/spec.md)
+
+## イシュー実装ワークフロー
+
+ユーザーが「PRV-XX を実装して」と指示したら、Claude は以下の手順で進める。
+
+### 1. イシュー確認
+Linear から対象イシュー（PRV-XX）の内容・説明・マイルストーンを取得して把握する。
+
+### 2. ブランチ作成
+Linear が提示するブランチ名規約に従う。
+
+```
+feature/PRV-XX-短い説明   # 新機能
+fix/PRV-XX-短い説明       # バグ修正
+```
+
+### 3. 実装
+- TDD 対象コンポーネントはテストを先に書く（Red → Green → Refactor）
+- コミットメッセージに Linear イシュー番号を含める
+
+```
+feat: Add state_store (PRV-23)
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+
+### 4. PR 作成
+PR タイトル・本文に Linear イシュー番号を記載し、Linear と自動連動させる。
+
+```
+タイトル: feat: Add state_store (PRV-23)
+本文: Closes PRV-23
+```
+
+GitHub PR の URL を Linear イシューにも貼り付ける。
+
+### 5. Linear イシューのステータス更新
+- 実装開始時: `In Progress`
+- PR 作成時: Linear に GitHub PR の URL をコメントまたはリンクとして追加
+- マージ後: `Done`
