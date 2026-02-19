@@ -1,0 +1,26 @@
+# 機密情報
+.env
+
+# 実行状態（ローカル固有）
+state.json
+state.json.bak
+
+# 生成物
+daily/
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.venv/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# uv
+uv.lock
