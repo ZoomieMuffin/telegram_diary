@@ -43,7 +43,8 @@ async def analyze_with_copilot(diff: str) -> str:
 
     try:
         session = await client.create_session({
-            "model": "gpt-5.2-codex",
+            "model": "gpt-5.3-codex",
+            "reasoning_effort": "max",
             "streaming": True,
         })
 
