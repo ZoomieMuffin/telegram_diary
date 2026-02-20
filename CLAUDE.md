@@ -6,7 +6,7 @@
 
 | 用途 | モデル |
 |------|--------|
-| 通常の実装・テスト・リファクタ | Claude Sonnet 4.6 |
+| 通常の実装・テスト・リファクタ | Claude Opus 4.6 |
 | 複雑な設計判断・デバッグ | Claude Opus 4.6 |
 
 ## Claude を使っている範囲
@@ -21,8 +21,14 @@
 Claude が作成したコミットには以下のトレーラーが付きます。
 
 ```
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <81847+claude@users.noreply.github.com>
 ```
+
+## GitHub Actions での Claude 自動修正
+
+PR コメントに `@claude` とメンションすると Claude が起動してレビュー内容を元に修正コミットを push します。
+
+**セキュリティ:** リポジトリオーナー（ZoomieMuffin）のコメントのみ有効。外部ユーザーの `@claude` メンションは無視されます。
 
 ## プロジェクト管理
 
@@ -51,7 +57,7 @@ fix/PRV-XX-短い説明       # バグ修正
 ```
 feat: Add state_store (PRV-23)
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude <81847+claude@users.noreply.github.com>
 ```
 
 ### 4. PR 作成
