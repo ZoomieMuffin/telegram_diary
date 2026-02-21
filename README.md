@@ -35,6 +35,61 @@ uv run python -m src.main
 uv run python -m src.main --generate-daily
 ```
 
+## 本番環境セットアップ（Ubuntu）
+
+### 1. self-hosted runner のインストール
+
+GitHub リポジトリの Settings → Actions → Runners → **New self-hosted runner** から
+トークンを取得し、以下を実行する。
+
+```bash
+export GITHUB_REPO="ZoomieMuffin/telegram_diary"
+export RUNNER_TOKEN="<取得したトークン>"
+bash scripts/setup_runner.sh
+```
+
+runner が systemd サービス `actions-runner` として登録・起動される。
+
+```bash
+# 状態確認
+sudo systemctl status actions-runner
+journalctl -u actions-runner -f
+```
+
+### 2. パスワードレス sudo の設定
+
+runner から `systemctl restart telegram-diary` を実行できるよう設定する。
+
+```bash
+sudo visudo -f /etc/sudoers.d/github-runner
+# 以下を追加:
+# muffin ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart telegram-diary
+```
+
+### 3. アプリケーションの初期デプロイ
+
+runner が初回チェックアウトした後（または手動で）`.env` を配置する。
+
+```bash
+# runner ワークスペースに .env を配置（一度だけ）
+cp .env ~/actions-runner/_work/telegram_diary/telegram_diary/.env
+```
+
+### 4. telegram-diary を systemd サービスとして登録
+
+```bash
+sudo cp scripts/telegram-diary.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable telegram-diary
+sudo systemctl start telegram-diary
+```
+
+```bash
+# 状態確認
+sudo systemctl status telegram-diary
+journalctl -u telegram-diary -f
+```
+
 ## 開発
 
 ```bash
