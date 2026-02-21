@@ -76,6 +76,7 @@ KillMode=process
 KillSignal=SIGTERM
 TimeoutStopSec=5min
 Environment=RUNNER_ALLOW_RUNASROOT=0
+Environment="PATH=${HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin"
 
 [Install]
 WantedBy=multi-user.target
