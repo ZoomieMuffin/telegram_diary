@@ -35,6 +35,56 @@ uv run python -m src.main
 uv run python -m src.main --generate-daily
 ```
 
+## 本番環境セットアップ（Ubuntu）
+
+### 1. self-hosted runner のインストール
+
+GitHub リポジトリの Settings → Actions → Runners → **New self-hosted runner** から
+トークンを取得し、以下を実行する。
+
+```bash
+export GITHUB_REPO="ZoomieMuffin/telegram_diary"
+export RUNNER_TOKEN="<取得したトークン>"
+bash scripts/setup_runner.sh
+```
+
+runner が systemd サービス `actions-runner` として登録・起動される。
+
+```bash
+# 状態確認
+sudo systemctl status actions-runner
+journalctl -u actions-runner -f
+```
+
+### 2. アプリケーションの初期設定
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/ZoomieMuffin/telegram_diary.git
+cd telegram_diary
+
+# 依存関係をインストール
+uv sync
+
+# 環境変数を設定
+cp .env.example .env
+vi .env  # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID を記入
+```
+
+### 3. systemd サービスとして常駐
+
+```bash
+# サービスファイルを配置
+sudo cp scripts/telegram-diary.service /etc/systemd/system/
+
+# 実行パスを環境に合わせて編集
+sudo systemctl daemon-reload
+sudo systemctl enable telegram-diary
+sudo systemctl start telegram-diary
+```
+
+> **Note:** `telegram-diary.service` は別イシューで作成予定。
+
 ## 開発
 
 ```bash
