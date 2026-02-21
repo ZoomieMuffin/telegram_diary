@@ -11,6 +11,7 @@ logs/
 
 # Python
 __pycache__/
+.coverage
 *.pyc
 *.pyo
 .pytest_cache/
@@ -18,6 +19,9 @@ __pycache__/
 .venv/
 dist/
 *.egg-info/
+
+# 個人メモ・振り返り
+RETROSPECTIVE.md
 
 # macOS
 .DS_Store
