@@ -1,0 +1,17 @@
+[Unit]
+Description=Telegram Diary Polling Service
+After=network.target
+
+[Service]
+Type=simple
+User=muffin
+WorkingDirectory=/home/muffin/actions-runner/_work/telegram_diary/telegram_diary
+ExecStart=/home/muffin/.local/bin/uv run python -m src.main
+EnvironmentFile=/home/muffin/actions-runner/_work/telegram_diary/telegram_diary/.env
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
