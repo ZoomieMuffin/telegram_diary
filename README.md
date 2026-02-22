@@ -56,39 +56,34 @@ sudo systemctl status actions-runner
 journalctl -u actions-runner -f
 ```
 
-### 2. パスワードレス sudo の設定
-
-runner から `systemctl restart telegram-diary` を実行できるよう設定する。
+### 2. アプリケーションの初期設定
 
 ```bash
-sudo visudo -f /etc/sudoers.d/github-runner
-# 以下を追加:
-# muffin ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart telegram-diary
+# リポジトリをクローン
+git clone https://github.com/ZoomieMuffin/telegram_diary.git
+cd telegram_diary
+
+# 依存関係をインストール
+uv sync
+
+# 環境変数を設定
+cp .env.example .env
+vi .env  # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID を記入
 ```
 
-### 3. アプリケーションの初期デプロイ
-
-runner が初回チェックアウトした後（または手動で）`.env` を配置する。
+### 3. systemd サービスとして常駐
 
 ```bash
-# runner ワークスペースに .env を配置（一度だけ）
-cp .env ~/actions-runner/_work/telegram_diary/telegram_diary/.env
-```
-
-### 4. telegram-diary を systemd サービスとして登録
-
-```bash
+# サービスファイルを配置
 sudo cp scripts/telegram-diary.service /etc/systemd/system/
+
+# 実行パスを環境に合わせて編集
 sudo systemctl daemon-reload
 sudo systemctl enable telegram-diary
 sudo systemctl start telegram-diary
 ```
 
-```bash
-# 状態確認
-sudo systemctl status telegram-diary
-journalctl -u telegram-diary -f
-```
+> **Note:** `telegram-diary.service` は別イシューで作成予定。
 
 ## 開発
 
