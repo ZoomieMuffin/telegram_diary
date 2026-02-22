@@ -19,7 +19,8 @@ async def get_pr_diff(repo_name: str, pr_number: int, github_token: str):
 
         diff = f"# PR #{pr_number}: {pr.title}\n\n"
         diff += f"**Description:** {pr.body or 'No description'}\n"
-        diff += f"**Files Changed:** {pr.changed_files} (+{pr.additions} / -{pr.deletions})\n\n---\n\n"
+        changed = f"+{pr.additions} / -{pr.deletions}"
+        diff += f"**Files Changed:** {pr.changed_files} ({changed})\n\n---\n\n"
 
         for file in pr.get_files():
             diff += f"\n## {file.filename} ({file.status})\n"
@@ -44,7 +45,7 @@ async def analyze_with_copilot(diff: str, github_token: str) -> str:
 
     try:
         session = await client.create_session({
-            "model": "gpt-5.3-codex",
+            "model": "gpt-5.2-codex",
             "reasoning_effort": "xhigh",
             "streaming": True,
         })
