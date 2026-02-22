@@ -110,16 +110,18 @@ class TestNormalize:
 class TestFetch:
     def test_returns_messages(self):
         with patch("src.fetcher.httpx.get") as mock_get:
-            mock_get.return_value = _ok_response([_raw_update()])
-            msgs = fetch("token", chat_id=-1001234, offset=0)
+            mock_get.return_value = _ok_response([_raw_update(update_id=100)])
+            msgs, next_offset = fetch("token", chat_id=-1001234, offset=0)
         assert len(msgs) == 1
         assert msgs[0].message_id == 1
+        assert next_offset == 101
 
     def test_empty_result(self):
         with patch("src.fetcher.httpx.get") as mock_get:
             mock_get.return_value = _ok_response([])
-            msgs = fetch("token", chat_id=-1001234, offset=0)
+            msgs, next_offset = fetch("token", chat_id=-1001234, offset=42)
         assert msgs == []
+        assert next_offset == 42  # unchanged when no updates
 
     def test_filters_by_chat_id(self):
         updates = [
@@ -128,9 +130,10 @@ class TestFetch:
         ]
         with patch("src.fetcher.httpx.get") as mock_get:
             mock_get.return_value = _ok_response(updates)
-            msgs = fetch("token", chat_id=-1001234, offset=0)
+            msgs, next_offset = fetch("token", chat_id=-1001234, offset=0)
         assert len(msgs) == 1
         assert msgs[0].message_id == 1
+        assert next_offset == 3  # max(update_id=2) + 1
 
     def test_passes_offset_to_api(self):
         with patch("src.fetcher.httpx.get") as mock_get:

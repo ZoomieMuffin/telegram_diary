@@ -67,7 +67,7 @@ async def analyze_with_copilot(diff: str, github_token: str) -> str:
 
 {diff}"""
 
-        response = await session.send_and_wait({"prompt": prompt})
+        response = await session.send_and_wait({"prompt": prompt}, timeout=300)
         result = ""
         if response and getattr(response, "data", None) and getattr(
             response.data, "content", None
