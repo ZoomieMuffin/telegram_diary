@@ -144,7 +144,7 @@ def poll_loop(
         try:
             poll_once(bot_token, chat_id, store, writer, messages_dir, logger)
         except Exception as exc:
-            logger.error(f"Poll error: {exc}")
+            logger.exception(f"Poll error: {exc}")
         time.sleep(interval)
 
 
@@ -184,9 +184,6 @@ def _today_jst() -> str:
 
 def main() -> None:
     load_dotenv()
-    bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
-    chat_id = int(os.environ["TELEGRAM_CHAT_ID"])
-    interval = int(os.environ.get("POLL_INTERVAL_SECONDS", str(_DEFAULT_INTERVAL)))
 
     parser = argparse.ArgumentParser(description="Telegram Diary")
     parser.add_argument(
@@ -206,6 +203,9 @@ def main() -> None:
     if args.generate_daily is not None:
         generate_daily(args.generate_daily, writer, messages_dir, logger)
     else:
+        bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
+        chat_id = int(os.environ["TELEGRAM_CHAT_ID"])
+        interval = int(os.environ.get("POLL_INTERVAL_SECONDS", str(_DEFAULT_INTERVAL)))
         poll_loop(bot_token, chat_id, store, writer, messages_dir, logger, interval)
 
 
