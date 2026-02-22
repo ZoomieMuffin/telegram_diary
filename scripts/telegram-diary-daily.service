@@ -18,3 +18,5 @@ ProtectHome=read-only
 PrivateTmp=true
 # 作業ディレクトリへの書き込みを許可（daily/, messages/）
 ReadWritePaths=%h/actions-runner/_work/telegram_diary/telegram_diary
+# uv がキャッシュへ書き込めるようにする
+ReadWritePaths=%h/.cache/uv
