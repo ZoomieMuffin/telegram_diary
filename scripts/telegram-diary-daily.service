@@ -1,0 +1,12 @@
+[Unit]
+Description=Telegram Diary Daily Journal Generation
+After=network.target
+
+[Service]
+Type=oneshot
+User=muffin
+WorkingDirectory=/home/muffin/actions-runner/_work/telegram_diary/telegram_diary
+ExecStart=/home/muffin/.local/bin/uv run python -m src.main --generate-daily
+EnvironmentFile=/home/muffin/actions-runner/_work/telegram_diary/telegram_diary/.env
+StandardOutput=journal
+StandardError=journal

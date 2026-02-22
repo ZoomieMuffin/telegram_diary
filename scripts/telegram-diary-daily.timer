@@ -1,0 +1,11 @@
+[Unit]
+Description=Telegram Diary Daily Journal Timer
+Requires=telegram-diary-daily.service
+
+[Timer]
+# 23:55 JST (14:55 UTC) に実行 — 日本は夏時間なし
+OnCalendar=*-*-* 14:55:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

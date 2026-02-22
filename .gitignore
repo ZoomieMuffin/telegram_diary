@@ -8,6 +8,7 @@ state.json.bak
 # 生成物
 daily/
 logs/
+messages/
 
 # Python
 __pycache__/
