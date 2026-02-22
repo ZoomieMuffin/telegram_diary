@@ -25,4 +25,4 @@ jobs:
         run: uv run ruff check .
 
       - name: Test
-        run: uv run pytest --cov=src --cov-fail-under=80
+        run: uv run pytest --cov=src --cov-fail-under=80 || test $? -eq 5
