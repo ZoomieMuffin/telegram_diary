@@ -36,7 +36,7 @@ async def get_pr_diff(repo_name: str, pr_number: int, github_token: str):
 
 async def analyze_with_copilot(diff: str, github_token: str) -> str:
     copilot_path = shutil.which("copilot")
-    config: dict = {"github_token": github_token}
+    config: dict = {"github_token": github_token, "timeout": 300000}
     if copilot_path:
         config["cli_path"] = copilot_path
 
