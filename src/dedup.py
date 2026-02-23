@@ -11,8 +11,13 @@ def dedup_by_id(messages: list[Message]) -> list[Message]:
 
     _merge_messages の上書き方針と一致させるため、同一 ID が複数ある場合は
     最後に出現したもの（編集済みの最新版）を採用する。
+    逆順イテレーションにより、値・位置ともに最後の出現を正しく反映する。
     """
-    by_id: dict[int, Message] = {}
-    for msg in messages:
-        by_id[msg.message_id] = msg
-    return list(by_id.values())
+    seen: set[int] = set()
+    result = []
+    for msg in reversed(messages):
+        if msg.message_id not in seen:
+            seen.add(msg.message_id)
+            result.append(msg)
+    result.reverse()
+    return result
