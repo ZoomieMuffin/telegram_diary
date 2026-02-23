@@ -70,7 +70,8 @@ uv sync
 cp .env.example .env
 vi .env  # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID を記入
 
-# 機密情報保護のためパーミッションを制限
+# サービスユーザー（muffin）が読めるよう所有者を設定してからパーミッションを制限
+chown muffin .env
 chmod 600 .env
 ```
 
