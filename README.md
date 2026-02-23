@@ -69,21 +69,69 @@ uv sync
 # 環境変数を設定
 cp .env.example .env
 vi .env  # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID を記入
+
+# 機密情報保護のためパーミッションを制限
+chmod 600 .env
 ```
 
 ### 3. systemd サービスとして常駐
 
 ```bash
-# サービスファイルを配置
+# ポーリングサービスを配置・起動
 sudo cp scripts/telegram-diary.service /etc/systemd/system/
-
-# 実行パスを環境に合わせて編集
 sudo systemctl daemon-reload
 sudo systemctl enable telegram-diary
 sudo systemctl start telegram-diary
+
+# 日次確定タイマーを配置・起動（23:55 JST に自動実行）
+sudo cp scripts/telegram-diary-daily.service /etc/systemd/system/
+sudo cp scripts/telegram-diary-daily.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now telegram-diary-daily.timer
 ```
 
-> **Note:** `telegram-diary.service` は別イシューで作成予定。
+## 運用手順
+
+### ログ確認
+
+```bash
+# systemd ジャーナル（リアルタイム）
+journalctl -u telegram-diary -f
+
+# アプリログ（日付別）
+cat logs/YYYY-MM-DD.log
+```
+
+### サービス再起動
+
+```bash
+sudo systemctl restart telegram-diary
+```
+
+### state.json リセット
+
+offset をリセットしたい場合（メッセージを最初から取り直すなど）:
+
+```bash
+sudo systemctl stop telegram-diary
+rm -f state.json state.json.bak
+sudo systemctl start telegram-diary
+```
+
+> **注意:** リセット後は Telegram API の保持期間（24時間）内のメッセージのみ取得可能。
+
+### Bot トークン漏洩時の対応
+
+1. BotFather で `/revoke` を実行して旧トークンを無効化
+2. 新しいトークンを取得
+3. `.env` を更新して `chmod 600 .env`
+4. サービスを再起動
+
+```bash
+vi .env  # TELEGRAM_BOT_TOKEN を新しいトークンに更新
+chmod 600 .env
+sudo systemctl restart telegram-diary
+```
 
 ## 開発
 
@@ -102,6 +150,7 @@ uv run pytest
 ```
 telegram_diary/
 ├── src/                  # アプリケーションコード
+│   ├── main.py           # エントリポイント（ポーリング・日次生成）
 │   ├── fetcher.py        # Telegram API からメッセージ取得
 │   ├── normalizer.py     # 生データを Message に変換
 │   ├── state_store.py    # 実行状態の永続化
@@ -109,10 +158,11 @@ telegram_diary/
 │   ├── summarizer.py     # 要約生成（ルールベース）
 │   ├── tagger.py         # タグ生成（ルールベース）
 │   └── logger.py         # ログ出力
+├── scripts/              # systemd ユニットファイル・ツール
 ├── tests/                # テストコード
-├── prompts/              # LLM プロンプト（任意）
 ├── daily/                # 生成物: YYYY-MM-DD.md（.gitignore）
 ├── logs/                 # 生成物: YYYY-MM-DD.log（.gitignore）
+├── messages/             # 生成物: 日次メッセージキャッシュ（.gitignore）
 ├── state.json            # 実行状態（.gitignore）
 └── .env                  # 機密情報（.gitignore）
 ```
