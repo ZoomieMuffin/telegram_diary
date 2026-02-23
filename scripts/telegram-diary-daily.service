@@ -7,6 +7,7 @@ Type=oneshot
 User=muffin
 WorkingDirectory=/home/muffin/prod/telegram_diary
 ExecStart=/home/muffin/.local/bin/uv run python -m src.main --generate-daily
+ExecStartPost=/bin/bash -c 'cp -n /home/muffin/prod/telegram_diary/daily/*.md /home/muffin/dev/notes/200_Personal/Diary/'
 EnvironmentFile=/home/muffin/prod/telegram_diary/.env
 StandardOutput=journal
 StandardError=journal
@@ -20,3 +21,4 @@ PrivateTmp=true
 ReadWritePaths=/home/muffin/prod/telegram_diary
 # uv がキャッシュへ書き込めるようにする
 ReadWritePaths=/home/muffin/.cache/uv
+ReadWritePaths=/home/muffin/dev/notes/200_Personal/Diary
