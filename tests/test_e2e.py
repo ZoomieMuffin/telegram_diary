@@ -5,14 +5,18 @@ E2E テスト（PRV-34）
 httpx.get のみをモックし、それ以外は実コンポーネントを使用する。
 """
 from unittest.mock import MagicMock, patch
-from zoneinfo import ZoneInfo
 
 from src.journal_writer import JournalWriter
 from src.logger import setup_logger
 from src.main import _load_day_messages, poll_once
 from src.state_store import StateStore
 
-JST = ZoneInfo("Asia/Tokyo")
+
+def _timeline_section(content: str) -> str:
+    """Markdown からタイムラインセクションのみを抽出する。"""
+    start = content.index("## タイムライン")
+    end = content.index("##", start + 1)
+    return content[start:end]
 
 # --------------------------------------------------------------------------
 # 固定 fixture
@@ -108,9 +112,10 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text()
-        pos_21 = content.index("21:00")
-        pos_22 = content.index("22:00")
-        pos_23 = content.index("23:00")
+        timeline = _timeline_section(content)
+        pos_21 = timeline.index("21:00")
+        pos_22 = timeline.index("22:00")
+        pos_23 = timeline.index("23:00")
         assert pos_21 < pos_22 < pos_23
 
     def test_tags_generated_from_messages(self, tmp_path):
@@ -174,8 +179,8 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text()
-        # タイムラインに 21:00 が1回だけ出現
-        assert content.count("21:00") == 1
+        # タイムラインセクションに 21:00 が1回だけ出現
+        assert _timeline_section(content).count("21:00") == 1
 
     def test_other_chat_messages_filtered_out(self, tmp_path):
         """対象外の chat_id からのメッセージは取り込まれない。"""
