@@ -21,7 +21,7 @@ PrivateTmp=true
 # 作業ディレクトリへの書き込みを許可（logs/, messages/, daily/, state.json）
 ReadWritePaths=/home/muffin/prod/telegram_diary
 # uv がキャッシュへ書き込めるようにする
-ReadWritePaths=%h/.cache/uv
+ReadWritePaths=/home/muffin/.cache/uv
 
 [Install]
 WantedBy=multi-user.target
