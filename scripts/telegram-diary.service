@@ -5,9 +5,9 @@ After=network.target
 [Service]
 Type=simple
 User=muffin
-WorkingDirectory=%h/prod/telegram_diary
-ExecStart=%h/.local/bin/uv run python -m src.main
-EnvironmentFile=%h/prod/telegram_diary/.env
+WorkingDirectory=/home/muffin/prod/telegram_diary
+ExecStart=/home/muffin/.local/bin/uv run python -m src.main
+EnvironmentFile=/home/muffin/prod/telegram_diary/.env
 Restart=on-failure
 RestartSec=30
 StandardOutput=journal
@@ -19,7 +19,7 @@ ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
 # 作業ディレクトリへの書き込みを許可（logs/, messages/, daily/, state.json）
-ReadWritePaths=%h/prod/telegram_diary
+ReadWritePaths=/home/muffin/prod/telegram_diary
 # uv がキャッシュへ書き込めるようにする
 ReadWritePaths=%h/.cache/uv
 
