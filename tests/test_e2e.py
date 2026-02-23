@@ -26,9 +26,10 @@ def clean_handlers():
 
 def _timeline_section(content: str) -> str:
     """Markdown からタイムラインセクションのみを抽出する。"""
-    start = content.index("## タイムライン")
-    end = content.index("##", start + 1)
-    return content[start:end]
+    for section in content.split("\n## "):
+        if section.startswith("タイムライン"):
+            return section
+    raise ValueError("タイムラインセクションが見つかりません")
 
 # --------------------------------------------------------------------------
 # 固定 fixture
