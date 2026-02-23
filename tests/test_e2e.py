@@ -24,12 +24,21 @@ def clean_handlers():
         logger.removeHandler(handler)
 
 
-def _timeline_section(content: str) -> str:
-    """Markdown からタイムラインセクションのみを抽出する。"""
-    for section in content.split("\n## "):
-        if section.startswith("タイムライン"):
-            return section
-    raise ValueError("タイムラインセクションが見つかりません")
+def _get_section(content: str, heading: str) -> str:
+    """Markdown から指定見出しのセクション本文のみを抽出する。"""
+    lines = content.splitlines()
+    result: list[str] = []
+    in_section = False
+    for line in lines:
+        if line == f"## {heading}":
+            in_section = True
+        elif in_section and line.startswith("## "):
+            break
+        elif in_section:
+            result.append(line)
+    if not in_section:
+        raise ValueError(f"セクション '{heading}' が見つかりません")
+    return "\n".join(result)
 
 # --------------------------------------------------------------------------
 # 固定 fixture
@@ -125,7 +134,7 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
-        timeline = _timeline_section(content)
+        timeline = _get_section(content, "タイムライン")
         pos_21 = timeline.index("21:00")
         pos_22 = timeline.index("22:00")
         pos_23 = timeline.index("23:00")
@@ -143,8 +152,9 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
-        assert "#task" in content
-        assert "#idea" in content
+        tag_section = _get_section(content, "タグ")
+        assert "#task" in tag_section
+        assert "#idea" in tag_section
 
     def test_state_updated_with_next_offset(self, tmp_path):
         """ポーリング後に state.json の offset が更新される。"""
@@ -193,7 +203,7 @@ class TestE2EPipeline:
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
         # タイムラインセクションに 21:00 が1回だけ出現
-        assert _timeline_section(content).count("21:00") == 1
+        assert _get_section(content, "タイムライン").count("21:00") == 1
 
     def test_other_chat_messages_filtered_out(self, tmp_path):
         """対象外の chat_id からのメッセージは取り込まれない。"""
