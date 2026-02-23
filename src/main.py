@@ -28,6 +28,7 @@ _DEFAULT_INTERVAL = 300  # 5 minutes
 
 
 def _msg_to_dict(msg: Message) -> dict:
+    """Message を JSON シリアライズ可能な dict に変換する。"""
     return {
         "message_id": msg.message_id,
         "timestamp": msg.timestamp.isoformat(),
@@ -41,6 +42,7 @@ def _msg_to_dict(msg: Message) -> dict:
 
 
 def _dict_to_msg(d: dict) -> Message:
+    """dict を Message に復元する。"""
     return Message(
         message_id=d["message_id"],
         timestamp=datetime.fromisoformat(d["timestamp"]),
@@ -63,6 +65,7 @@ def _dict_to_msg(d: dict) -> Message:
 
 
 def _load_day_messages(date_str: str, messages_dir: Path) -> list[Message]:
+    """messages_dir/date_str.json からメッセージリストを読み込む。ファイルがなければ空リスト。"""
     path = messages_dir / f"{date_str}.json"
     if not path.exists():
         return []
@@ -70,6 +73,7 @@ def _load_day_messages(date_str: str, messages_dir: Path) -> list[Message]:
 
 
 def _save_day_messages(date_str: str, messages: list[Message], messages_dir: Path) -> None:
+    """メッセージリストを messages_dir/date_str.json に保存する。"""
     messages_dir.mkdir(parents=True, exist_ok=True)
     path = messages_dir / f"{date_str}.json"
     path.write_text(
@@ -83,6 +87,7 @@ def _save_day_messages(date_str: str, messages: list[Message], messages_dir: Pat
 
 
 def _merge_messages(existing: list[Message], new: list[Message]) -> list[Message]:
+    """既存と新規を message_id でマージし timestamp 順に返す。編集済みメッセージは上書き。"""
     by_id: dict[int, Message] = {m.message_id: m for m in existing}
     for msg in new:
         by_id[msg.message_id] = msg  # 編集済みメッセージは上書き

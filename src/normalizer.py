@@ -22,6 +22,7 @@ def normalize(update: dict) -> Message | None:
 
 
 def _extract_attachments(raw: dict) -> list[Attachment]:
+    """生メッセージから添付ファイルリストを抽出する。"""
     result = []
 
     if "photo" in raw:
