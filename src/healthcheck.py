@@ -1,10 +1,19 @@
 import json
 from pathlib import Path
+from typing import TypedDict
 
 import httpx
 
 
-def check(bot_token: str, state_file: Path = Path("state.json")) -> dict:
+class HealthResult(TypedDict):
+    api: bool
+    state: bool
+    ok: bool
+    bot_username: str | None
+    last_update_id: int | None
+
+
+def check(bot_token: str, state_file: Path = Path("state.json")) -> HealthResult:
     """システムの健全性を確認し、結果を dict で返す。
 
     Keys:
@@ -14,8 +23,8 @@ def check(bot_token: str, state_file: Path = Path("state.json")) -> dict:
         bot_username (str | None): Bot のユーザー名（API 正常時）
         last_update_id (int | None): 最後の update_id（state 正常時）
     """
-    result: dict = {"api": False, "state": False, "ok": False,
-                    "bot_username": None, "last_update_id": None}
+    result: HealthResult = {"api": False, "state": False, "ok": False,
+                            "bot_username": None, "last_update_id": None}
 
     # --- Telegram API 疎通確認 ---
     try:

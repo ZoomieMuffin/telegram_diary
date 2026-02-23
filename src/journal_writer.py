@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from src.dedup import dedup_by_id
 from src.models import Attachment, DailySummary, Message
 
 _MEDIA_LABELS = {
@@ -22,7 +23,8 @@ class JournalWriter:
         return path
 
     def _render(self, summary: DailySummary) -> str:
-        messages = _dedup_by_id(summary.messages)
+        """DailySummary を Markdown 文字列に変換する。"""
+        messages = dedup_by_id(summary.messages)
         messages = sorted(messages, key=lambda m: m.timestamp)
 
         lines: list[str] = []
@@ -47,17 +49,8 @@ class JournalWriter:
         return "\n".join(lines)
 
 
-def _dedup_by_id(messages: list[Message]) -> list[Message]:
-    seen: set[int] = set()
-    result = []
-    for msg in messages:
-        if msg.message_id not in seen:
-            seen.add(msg.message_id)
-            result.append(msg)
-    return result
-
-
 def _format_message(msg: Message) -> str:
+    """メッセージを「HH:MM テキスト [添付]」形式の文字列に変換する。"""
     time_str = msg.timestamp.strftime("%H:%M")
     parts = [time_str]
     if msg.text:
@@ -68,5 +61,6 @@ def _format_message(msg: Message) -> str:
 
 
 def _format_attachment(att: Attachment) -> str:
+    """添付ファイルを「[種別: ファイル名]」形式の文字列に変換する。"""
     label = _MEDIA_LABELS.get(att.media_type, "ファイル")
     return f"[{label}: {att.file_name}]"

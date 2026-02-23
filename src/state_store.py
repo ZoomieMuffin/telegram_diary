@@ -33,6 +33,7 @@ class StateStore:
         return State(last_update_id=0, last_run_at=_DEFAULT_DT)
 
     def _try_load(self, path: Path) -> State | None:
+        """path を読み込んで State を返す。ファイルが存在しないか破損している場合は None。"""
         if not path.exists():
             return None
         try:
