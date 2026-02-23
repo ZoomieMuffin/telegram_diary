@@ -10,8 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Deploy to production
+        run: |
+          cd ~/prod/telegram_diary
+          git pull origin main
+
       - name: Install dependencies
-        run: uv sync
+        run: |
+          cd ~/prod/telegram_diary
+          uv sync
 
       - name: Restart service
         run: sudo systemctl restart telegram-diary
