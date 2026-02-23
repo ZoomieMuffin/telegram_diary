@@ -18,7 +18,10 @@ from src.state_store import StateStore
 @pytest.fixture(autouse=True)
 def clean_handlers():
     yield
-    logging.getLogger("telegram_diary").handlers.clear()
+    logger = logging.getLogger("telegram_diary")
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
 
 
 def _timeline_section(content: str) -> str:
@@ -104,7 +107,7 @@ class TestE2EPipeline:
             mock_get.return_value = _ok_response(_FIXTURE_UPDATES)
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
-        content = (tmp_path / "daily" / "2026-02-21.md").read_text()
+        content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
         assert "## 要約" in content
         assert "## タイムライン" in content
         assert "## タグ" in content
@@ -120,7 +123,7 @@ class TestE2EPipeline:
             mock_get.return_value = _ok_response(_FIXTURE_UPDATES)
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
-        content = (tmp_path / "daily" / "2026-02-21.md").read_text()
+        content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
         timeline = _timeline_section(content)
         pos_21 = timeline.index("21:00")
         pos_22 = timeline.index("22:00")
@@ -138,7 +141,7 @@ class TestE2EPipeline:
             mock_get.return_value = _ok_response(_FIXTURE_UPDATES)
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
-        content = (tmp_path / "daily" / "2026-02-21.md").read_text()
+        content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
         assert "#task" in content
         assert "#idea" in content
 
@@ -187,7 +190,7 @@ class TestE2EPipeline:
             mock_get.return_value = _ok_response([])
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
-        content = (tmp_path / "daily" / "2026-02-21.md").read_text()
+        content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
         # タイムラインセクションに 21:00 が1回だけ出現
         assert _timeline_section(content).count("21:00") == 1
 
