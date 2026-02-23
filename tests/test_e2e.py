@@ -4,12 +4,21 @@ E2E テスト（PRV-34）
 固定 fixture を使って「取得 → 正規化 → 書き出し」を1本通す結合テスト。
 httpx.get のみをモックし、それ以外は実コンポーネントを使用する。
 """
+import logging
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.journal_writer import JournalWriter
 from src.logger import setup_logger
 from src.main import _load_day_messages, poll_once
 from src.state_store import StateStore
+
+
+@pytest.fixture(autouse=True)
+def clean_handlers():
+    yield
+    logging.getLogger("telegram_diary").handlers.clear()
 
 
 def _timeline_section(content: str) -> str:
