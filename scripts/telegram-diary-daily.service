@@ -5,9 +5,9 @@ After=network.target
 [Service]
 Type=oneshot
 User=muffin
-WorkingDirectory=%h/actions-runner/_work/telegram_diary/telegram_diary
+WorkingDirectory=%h/prod/telegram_diary
 ExecStart=%h/.local/bin/uv run python -m src.main --generate-daily
-EnvironmentFile=%h/actions-runner/_work/telegram_diary/telegram_diary/.env
+EnvironmentFile=%h/prod/telegram_diary/.env
 StandardOutput=journal
 StandardError=journal
 
@@ -17,6 +17,6 @@ ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
 # 作業ディレクトリへの書き込みを許可（daily/, messages/）
-ReadWritePaths=%h/actions-runner/_work/telegram_diary/telegram_diary
+ReadWritePaths=%h/prod/telegram_diary
 # uv がキャッシュへ書き込めるようにする
 ReadWritePaths=%h/.cache/uv

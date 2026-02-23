@@ -58,10 +58,14 @@ journalctl -u actions-runner -f
 
 ### 2. アプリケーションの初期設定
 
+> **注意:** `deploy.yml` の CD は `~/prod/telegram_diary` が git clone 済みであることを前提とする。
+> 初回のみ以下の手順を手動で実行すること。以降の更新は main へのマージで自動デプロイされる。
+
 ```bash
-# リポジトリをクローン
-git clone https://github.com/ZoomieMuffin/telegram_diary.git
-cd telegram_diary
+# 本番ディレクトリを作成してリポジトリをクローン
+mkdir -p ~/prod/telegram_diary
+git clone https://github.com/ZoomieMuffin/telegram_diary.git ~/prod/telegram_diary
+cd ~/prod/telegram_diary
 
 # 依存関係をインストール
 uv sync
