@@ -19,6 +19,8 @@ class JournalWriter:
     def write(self, summary: DailySummary) -> Path:
         self.daily_dir.mkdir(parents=True, exist_ok=True)
         path = self.daily_dir / f"{summary.date}.md"
+        if path.exists() and "## Summary" in path.read_text(encoding="utf-8"):
+            return path
         path.write_text(self._render(summary), encoding="utf-8")
         return path
 

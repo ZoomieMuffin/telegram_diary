@@ -84,6 +84,13 @@ class TestIdempotency:
         second = writer.write(summary).read_text()
         assert first == second
 
+    def test_does_not_overwrite_llm_processed_file(self, writer, tmp_path):
+        path = writer.write(_summary())
+        llm_content = path.read_text() + "\n## Summary\n- LLM generated\n"
+        path.write_text(llm_content)
+        writer.write(_summary(messages=[_msg(2, 12, "新しいメモ")]))
+        assert path.read_text() == llm_content
+
     def test_duplicate_message_ids_written_once(self, writer):
         msgs = [_msg(1, 9, "original"), _msg(1, 9, "duplicate")]
         content = writer.write(_summary(messages=msgs)).read_text()

@@ -18,10 +18,10 @@ if [[ ! -f "$FILE" ]]; then
     exit 0
 fi
 
-echo "$(date): Summarizing ${FILE} with ${LLM_CMD}..." >&2
+echo "$(date): Summarizing ${FILE}..." >&2
 
-cat "$FILE" \
-    | "$LLM_CMD" -p "$(cat "$PROMPT_FILE")" \
+{ cat "$PROMPT_FILE"; printf '\n\n'; cat "$FILE"; } \
+    | "$LLM_CMD" --print \
     > "${FILE}.tmp" \
     && mv "${FILE}.tmp" "$FILE"
 
