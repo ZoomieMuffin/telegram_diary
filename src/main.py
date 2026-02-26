@@ -168,7 +168,7 @@ def generate_daily(
         date=date_str,
         messages=messages,
     )
-    path = writer.write(daily)
+    path = writer.write(daily, logger)
     logger.info(f"Generated {path}")
 
 
