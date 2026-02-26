@@ -94,10 +94,12 @@ class TestIdempotency:
 
     def test_logs_warning_on_llm_processed_file(self, writer, tmp_path):
         import logging
+        from unittest.mock import patch
+
         path = writer.write(_summary())
         path.with_suffix(".md.done").touch()
         logger = logging.getLogger("test")
-        with __import__("unittest.mock", fromlist=["patch"]).patch.object(logger, "warning") as mock_warn:
+        with patch.object(logger, "warning") as mock_warn:
             writer.write(_summary(messages=[_msg(2, 12, "遅延メモ")]), logger)
         mock_warn.assert_called_once()
 
