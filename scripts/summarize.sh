@@ -13,7 +13,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 DAILY_DIR="${REPO_DIR}/daily"
 PROMPT_FILE="${REPO_DIR}/prompts/daily_summary.txt"
-LLM_CMD="${LLM_CMD:-claude --print}"
+LLM_CMD="${LLM_CMD:-gemini}"
+LLM_PROMPT_FLAG="${LLM_PROMPT_FLAG:--p}"
 
 # JST固定で前日の日付を取得（GNU/BSD両対応）
 DATE=$(TZ=Asia/Tokyo python3 -c "from datetime import date, timedelta; print(date.today() - timedelta(days=1))")
@@ -37,11 +38,12 @@ echo "$(date): Summarizing ${FILE}..." >&2
 
 # LLM_CMDを配列に分割して実行（bash -c によるインジェクションを回避）
 read -ra LLM_ARRAY <<< "$LLM_CMD"
+PROMPT=$(cat "$PROMPT_FILE")
 
 NOTES_DIR="${NOTES_DIR:-/home/muffin/dev/notes/200_Personal/Diary}"
 
-{ cat "$PROMPT_FILE"; printf '\n\n'; cat "$FILE"; } \
-    | "${LLM_ARRAY[@]}" \
+cat "$FILE" \
+    | "${LLM_ARRAY[@]}" "$LLM_PROMPT_FLAG" "$PROMPT" \
     > "${FILE}.tmp" \
     && mv "${FILE}.tmp" "$FILE" \
     && touch "$DONE_MARKER"
