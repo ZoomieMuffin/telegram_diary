@@ -19,13 +19,8 @@ jobs:
           cd ~/prod/telegram_diary
           uv sync
 
-      - name: Install systemd units
-        run: |
-          sudo cp ~/prod/telegram_diary/scripts/telegram-diary-daily.service /etc/systemd/system/
-          sudo cp ~/prod/telegram_diary/scripts/telegram-diary-summarize.service /etc/systemd/system/
-          sudo cp ~/prod/telegram_diary/scripts/telegram-diary-summarize.timer /etc/systemd/system/
-          sudo systemctl daemon-reload
-          sudo systemctl enable --now telegram-diary-summarize.timer
+      - name: Reload systemd units
+        run: sudo systemctl daemon-reload
 
       - name: Restart service
         run: sudo systemctl restart telegram-diary
