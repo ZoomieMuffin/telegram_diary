@@ -38,10 +38,13 @@ echo "$(date): Summarizing ${FILE}..." >&2
 # LLM_CMDを配列に分割して実行（bash -c によるインジェクションを回避）
 read -ra LLM_ARRAY <<< "$LLM_CMD"
 
+NOTES_DIR="${NOTES_DIR:-/home/muffin/dev/notes/200_Personal/Diary}"
+
 { cat "$PROMPT_FILE"; printf '\n\n'; cat "$FILE"; } \
     | "${LLM_ARRAY[@]}" \
     > "${FILE}.tmp" \
     && mv "${FILE}.tmp" "$FILE" \
     && touch "$DONE_MARKER"
 
-echo "$(date): Done." >&2
+cp -f "$FILE" "$NOTES_DIR/"
+echo "$(date): Done. Copied to ${NOTES_DIR}." >&2

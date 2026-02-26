@@ -1,12 +1,12 @@
 [Unit]
-Description=Telegram Diary Daily Journal Generation
+Description=Telegram Diary LLM Summarize
 After=network.target
 
 [Service]
 Type=oneshot
 User=muffin
 WorkingDirectory=/home/muffin/prod/telegram_diary
-ExecStart=/home/muffin/.local/bin/uv run python -m src.main --generate-daily
+ExecStart=/home/muffin/prod/telegram_diary/scripts/summarize.sh
 EnvironmentFile=/home/muffin/prod/telegram_diary/.env
 StandardOutput=journal
 StandardError=journal
@@ -16,8 +16,6 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
-# 作業ディレクトリへの書き込みを許可（daily/, messages/）
 ReadWritePaths=/home/muffin/prod/telegram_diary
-# uv がキャッシュへ書き込めるようにする
 ReadWritePaths=/home/muffin/.cache/uv
 ReadWritePaths=/home/muffin/dev/notes/200_Personal/Diary

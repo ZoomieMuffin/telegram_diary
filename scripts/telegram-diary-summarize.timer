@@ -1,0 +1,11 @@
+[Unit]
+Description=Telegram Diary LLM Summarize Timer
+Requires=telegram-diary-summarize.service
+
+[Timer]
+# 00:05 JST (15:05 UTC) に実行
+OnCalendar=*-*-* 15:05:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target
