@@ -21,7 +21,7 @@ def _msg(message_id: int, hour: int, text: str, attachments=None) -> Message:
 
 def _summary(**kwargs) -> DailySummary:
     defaults = dict(
-        date="2026-02-21", summary=["要約1"], tags=["#idea"], messages=[_msg(1, 9, "メモ1")]
+        date="2026-02-21", messages=[_msg(1, 9, "メモ1")]
     )
     return DailySummary(**{**defaults, **kwargs})
 
@@ -52,7 +52,7 @@ class TestWrite:
 
 
 # --------------------------------------------------------------------------
-# 出力順序
+# 出力内容
 # --------------------------------------------------------------------------
 
 
@@ -61,28 +61,15 @@ class TestOutputOrder:
         content = writer.write(_summary(date="2026-02-21")).read_text()
         assert "# 2026-02-21 日記" in content
 
-    def test_sections_in_correct_order(self, writer):
+    def test_timeline_section_present(self, writer):
         content = writer.write(_summary()).read_text()
-        idx_summary = content.index("## 要約")
-        idx_timeline = content.index("## タイムライン")
-        idx_tags = content.index("## タグ")
-        assert idx_summary < idx_timeline < idx_tags
-
-    def test_summary_items_rendered(self, writer):
-        content = writer.write(_summary(summary=["要約A", "要約B"])).read_text()
-        assert "- 要約A" in content
-        assert "- 要約B" in content
+        assert "## タイムライン" in content
 
     def test_timeline_shows_hhmm(self, writer):
         msgs = [_msg(1, 9, "朝"), _msg(2, 21, "夜")]
         content = writer.write(_summary(messages=msgs)).read_text()
         assert "- 09:00 朝" in content
         assert "- 21:00 夜" in content
-
-    def test_tags_rendered(self, writer):
-        content = writer.write(_summary(tags=["#idea", "#task"])).read_text()
-        assert "- #idea" in content
-        assert "- #task" in content
 
 
 # --------------------------------------------------------------------------
@@ -147,11 +134,3 @@ class TestEmptyCases:
     def test_empty_messages(self, writer):
         content = writer.write(_summary(messages=[])).read_text()
         assert "## タイムライン" in content
-
-    def test_empty_summary(self, writer):
-        content = writer.write(_summary(summary=[])).read_text()
-        assert "## 要約" in content
-
-    def test_empty_tags(self, writer):
-        content = writer.write(_summary(tags=[])).read_text()
-        assert "## タグ" in content

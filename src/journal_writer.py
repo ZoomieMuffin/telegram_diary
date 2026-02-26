@@ -31,19 +31,9 @@ class JournalWriter:
 
         lines += [f"# {summary.date} 日記", ""]
 
-        lines += ["## 要約", ""]
-        for item in summary.summary:
-            lines.append(f"- {item}")
-        lines.append("")
-
         lines += ["## タイムライン", ""]
         for msg in messages:
             lines.append(f"- {_format_message(msg)}")
-        lines.append("")
-
-        lines += ["## タグ", ""]
-        for tag in summary.tags:
-            lines.append(f"- {tag}")
         lines.append("")
 
         return "\n".join(lines)
