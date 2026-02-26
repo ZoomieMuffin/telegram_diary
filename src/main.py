@@ -121,7 +121,7 @@ def poll_once(
             date=date_str,
             messages=merged,
         )
-        writer.write(daily)
+        writer.write(daily, logger)
 
     if new_messages:
         logger.info(f"Fetched {len(new_messages)} new message(s)")

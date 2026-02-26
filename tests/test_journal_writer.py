@@ -86,10 +86,20 @@ class TestIdempotency:
 
     def test_does_not_overwrite_llm_processed_file(self, writer, tmp_path):
         path = writer.write(_summary())
-        llm_content = path.read_text() + "\n## Summary\n- LLM generated\n"
-        path.write_text(llm_content)
+        done_marker = path.with_suffix(".md.done")
+        done_marker.touch()
+        original = path.read_text()
         writer.write(_summary(messages=[_msg(2, 12, "新しいメモ")]))
-        assert path.read_text() == llm_content
+        assert path.read_text() == original
+
+    def test_logs_warning_on_llm_processed_file(self, writer, tmp_path):
+        import logging
+        path = writer.write(_summary())
+        path.with_suffix(".md.done").touch()
+        logger = logging.getLogger("test")
+        with __import__("unittest.mock", fromlist=["patch"]).patch.object(logger, "warning") as mock_warn:
+            writer.write(_summary(messages=[_msg(2, 12, "遅延メモ")]), logger)
+        mock_warn.assert_called_once()
 
     def test_duplicate_message_ids_written_once(self, writer):
         msgs = [_msg(1, 9, "original"), _msg(1, 9, "duplicate")]
