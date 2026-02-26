@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from src.dedup import dedup_by_id
@@ -16,9 +17,16 @@ class JournalWriter:
     def __init__(self, daily_dir: Path = Path("daily")):
         self.daily_dir = daily_dir
 
-    def write(self, summary: DailySummary) -> Path:
+    def write(self, summary: DailySummary, logger: logging.Logger | None = None) -> Path:
         self.daily_dir.mkdir(parents=True, exist_ok=True)
         path = self.daily_dir / f"{summary.date}.md"
+        done_marker = path.with_suffix(".md.done")
+        if done_marker.exists():
+            if logger:
+                logger.warning(
+                    f"{summary.date}: LLM処理済みのためスキップ（遅延メッセージは反映されません）"
+                )
+            return path
         path.write_text(self._render(summary), encoding="utf-8")
         return path
 
@@ -31,19 +39,9 @@ class JournalWriter:
 
         lines += [f"# {summary.date} 日記", ""]
 
-        lines += ["## 要約", ""]
-        for item in summary.summary:
-            lines.append(f"- {item}")
-        lines.append("")
-
         lines += ["## タイムライン", ""]
         for msg in messages:
             lines.append(f"- {_format_message(msg)}")
-        lines.append("")
-
-        lines += ["## タグ", ""]
-        for tag in summary.tags:
-            lines.append(f"- {tag}")
         lines.append("")
 
         return "\n".join(lines)

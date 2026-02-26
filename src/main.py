@@ -15,8 +15,6 @@ from src.logger import setup_logger
 from src.models import Attachment, DailySummary, Message, State
 from src.retry import with_retry
 from src.state_store import StateStore
-from src.summarizer import summarize
-from src.tagger import tag
 
 JST = ZoneInfo("Asia/Tokyo")
 _DEFAULT_INTERVAL = 300  # 5 minutes
@@ -121,11 +119,9 @@ def poll_once(
         _save_day_messages(date_str, merged, messages_dir)
         daily = DailySummary(
             date=date_str,
-            summary=summarize(merged),
-            tags=tag(merged),
             messages=merged,
         )
-        writer.write(daily)
+        writer.write(daily, logger)
 
     if new_messages:
         logger.info(f"Fetched {len(new_messages)} new message(s)")
@@ -170,11 +166,9 @@ def generate_daily(
         return
     daily = DailySummary(
         date=date_str,
-        summary=summarize(messages),
-        tags=tag(messages),
         messages=messages,
     )
-    path = writer.write(daily)
+    path = writer.write(daily, logger)
     logger.info(f"Generated {path}")
 
 

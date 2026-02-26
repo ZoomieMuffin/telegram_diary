@@ -27,6 +27,4 @@ class State:
 @dataclass
 class DailySummary:
     date: str
-    summary: list[str]
-    tags: list[str]
     messages: list[Message] = field(default_factory=list)

@@ -21,7 +21,7 @@ def _msg(message_id: int, hour: int, text: str, attachments=None) -> Message:
 
 def _summary(**kwargs) -> DailySummary:
     defaults = dict(
-        date="2026-02-21", summary=["要約1"], tags=["#idea"], messages=[_msg(1, 9, "メモ1")]
+        date="2026-02-21", messages=[_msg(1, 9, "メモ1")]
     )
     return DailySummary(**{**defaults, **kwargs})
 
@@ -52,7 +52,7 @@ class TestWrite:
 
 
 # --------------------------------------------------------------------------
-# 出力順序
+# 出力内容
 # --------------------------------------------------------------------------
 
 
@@ -61,28 +61,15 @@ class TestOutputOrder:
         content = writer.write(_summary(date="2026-02-21")).read_text()
         assert "# 2026-02-21 日記" in content
 
-    def test_sections_in_correct_order(self, writer):
+    def test_timeline_section_present(self, writer):
         content = writer.write(_summary()).read_text()
-        idx_summary = content.index("## 要約")
-        idx_timeline = content.index("## タイムライン")
-        idx_tags = content.index("## タグ")
-        assert idx_summary < idx_timeline < idx_tags
-
-    def test_summary_items_rendered(self, writer):
-        content = writer.write(_summary(summary=["要約A", "要約B"])).read_text()
-        assert "- 要約A" in content
-        assert "- 要約B" in content
+        assert "## タイムライン" in content
 
     def test_timeline_shows_hhmm(self, writer):
         msgs = [_msg(1, 9, "朝"), _msg(2, 21, "夜")]
         content = writer.write(_summary(messages=msgs)).read_text()
         assert "- 09:00 朝" in content
         assert "- 21:00 夜" in content
-
-    def test_tags_rendered(self, writer):
-        content = writer.write(_summary(tags=["#idea", "#task"])).read_text()
-        assert "- #idea" in content
-        assert "- #task" in content
 
 
 # --------------------------------------------------------------------------
@@ -96,6 +83,25 @@ class TestIdempotency:
         first = writer.write(summary).read_text()
         second = writer.write(summary).read_text()
         assert first == second
+
+    def test_does_not_overwrite_llm_processed_file(self, writer, tmp_path):
+        path = writer.write(_summary())
+        done_marker = path.with_suffix(".md.done")
+        done_marker.touch()
+        original = path.read_text()
+        writer.write(_summary(messages=[_msg(2, 12, "新しいメモ")]))
+        assert path.read_text() == original
+
+    def test_logs_warning_on_llm_processed_file(self, writer, tmp_path):
+        import logging
+        from unittest.mock import patch
+
+        path = writer.write(_summary())
+        path.with_suffix(".md.done").touch()
+        logger = logging.getLogger("test")
+        with patch.object(logger, "warning") as mock_warn:
+            writer.write(_summary(messages=[_msg(2, 12, "遅延メモ")]), logger)
+        mock_warn.assert_called_once()
 
     def test_duplicate_message_ids_written_once(self, writer):
         msgs = [_msg(1, 9, "original"), _msg(1, 9, "duplicate")]
@@ -147,11 +153,3 @@ class TestEmptyCases:
     def test_empty_messages(self, writer):
         content = writer.write(_summary(messages=[])).read_text()
         assert "## タイムライン" in content
-
-    def test_empty_summary(self, writer):
-        content = writer.write(_summary(summary=[])).read_text()
-        assert "## 要約" in content
-
-    def test_empty_tags(self, writer):
-        content = writer.write(_summary(tags=[])).read_text()
-        assert "## タグ" in content

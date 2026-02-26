@@ -107,7 +107,7 @@ class TestE2EPipeline:
         assert daily_file.exists(), "daily/2026-02-21.md が生成されていない"
 
     def test_daily_file_contains_required_sections(self, tmp_path):
-        """生成された Markdown に 要約・タイムライン・タグ セクションが含まれる。"""
+        """生成された Markdown にタイムラインセクションが含まれる。"""
         store = StateStore(tmp_path / "state.json")
         writer = JournalWriter(tmp_path / "daily")
         messages_dir = tmp_path / "messages"
@@ -118,9 +118,7 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
-        assert "## 要約" in content
         assert "## タイムライン" in content
-        assert "## タグ" in content
 
     def test_timeline_messages_in_chronological_order(self, tmp_path):
         """タイムラインが時系列順（21:00 → 22:00 → 23:00）になっている。"""
@@ -140,8 +138,8 @@ class TestE2EPipeline:
         pos_23 = timeline.index("23:00")
         assert pos_21 < pos_22 < pos_23
 
-    def test_tags_generated_from_messages(self, tmp_path):
-        """#task・#idea キーワードを含むメッセージからタグが生成される。"""
+    def test_timeline_contains_original_message_text(self, tmp_path):
+        """タイムラインに元のメッセージテキストが保持されている。"""
         store = StateStore(tmp_path / "state.json")
         writer = JournalWriter(tmp_path / "daily")
         messages_dir = tmp_path / "messages"
@@ -152,9 +150,9 @@ class TestE2EPipeline:
             poll_once("dummy_token", _CHAT_ID, store, writer, messages_dir, logger)
 
         content = (tmp_path / "daily" / "2026-02-21.md").read_text(encoding="utf-8")
-        tag_section = _get_section(content, "タグ")
-        assert "#task" in tag_section
-        assert "#idea" in tag_section
+        timeline = _get_section(content, "タイムライン")
+        assert "新しいプロジェクトを始める" in timeline
+        assert "ミーティングの準備" in timeline
 
     def test_state_updated_with_next_offset(self, tmp_path):
         """ポーリング後に state.json の offset が更新される。"""
